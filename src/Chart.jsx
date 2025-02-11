@@ -46,14 +46,14 @@ export function Chart({ data }) {
     .range([marginLeft, width - marginRight]);
 
   const yAxis = d3
-    .scaleLinear()
-    .domain([d3.max(pops), d3.min(pops)])
-    .range([marginTop, heightBound]);
+    .scaleLog()
+    .domain([1, d3.max(pops)]) // log(0) = Infinity see example here: https://d3js.org/d3-scale/log
+    .range([heightBound, marginTop]);
 
   const lineBuilder = d3
     .line()
     .x((d) => xAxis(d.year))
-    .y((d) => yAxis(d.population));
+    .y((d) => (yAxis(d.population) > 0 ? yAxis(d.population) : 1)); //added conditional statement for when population =0
 
   // const linePath = lineBuilder(pop_data);
 
@@ -142,7 +142,8 @@ export function Chart({ data }) {
                   y={yAxis(tick)}
                   key={tick}
                 >
-                  {tick}
+                  {/* Format ticks see examples here: https://d3js.org/d3-format#locale_format */}
+                  {yAxis.tickFormat(5, "s")(tick)}
                 </text>
               </g>
             );
